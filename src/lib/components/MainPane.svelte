@@ -1,10 +1,11 @@
 <script lang="ts">
   import { mode } from "../stores/mode";
+  import DirectMode from "./DirectMode.svelte";
 </script>
 
 <main class="main-pane">
   {#if $mode === "direct"}
-    <div class="placeholder">Waiting for a direct Ethernet link…</div>
+    <DirectMode />
   {:else if $mode === "network"}
     <div class="placeholder">Searching for peers on the network…</div>
   {:else if $mode === "ssh"}
@@ -17,8 +18,13 @@
     flex: 1;
     height: 100%;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow-y: auto;
+  }
+
+  .main-pane:has(.placeholder) {
+    align-items: center;
   }
 
   .placeholder {

@@ -21,10 +21,12 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7", features = ["io", "codec"] }
+bytes = "1"
 window-vibrancy = "0.8.0"
 thiserror = "2.0"
 uuid = { version = "1", features = ["v4", "serde"] }
@@ -35,7 +37,7 @@ snow = "0.9"
 mdns-sd = "0.13"
 if-addrs = "0.13"
 rand = "0.9"
-bincode = "2"
+bincode = { version = "2", features = ["serde"] }
 russh = "0.45"
 russh-sftp = "2"
 keyring = "3"

@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::models::{ItemStatus, TransferItem};
+use crate::models::ItemStatus;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct TransferProgressPayload {
@@ -15,6 +15,12 @@ pub struct TransferStatusChangedPayload {
     pub status: ItemStatus,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct ConnectionStatusPayload {
+    pub connected: bool,
+    pub peer_address: Option<String>,
+}
+
 /// Abstracts event emission away from the concrete `tauri::AppHandle` type so the
 /// engine (and its tests) never need to reference Tauri/WebView2 types directly.
 /// The only implementation used by the real app lives in `tauri_event_sink.rs`;
@@ -22,9 +28,5 @@ pub struct TransferStatusChangedPayload {
 pub trait EventSink: Send + Sync {
     fn emit_transfer_progress(&self, payload: TransferProgressPayload);
     fn emit_transfer_status_changed(&self, payload: TransferStatusChangedPayload);
-}
-
-#[allow(dead_code)]
-pub fn transfer_summary(item: &TransferItem) -> (u64, u64) {
-    (item.bytes_done, item.bytes_total)
+    fn emit_connection_status(&self, payload: ConnectionStatusPayload);
 }
