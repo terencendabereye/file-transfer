@@ -9,6 +9,14 @@
       <stop offset="0%" stop-color="#ffffff"/>
       <stop offset="100%" stop-color="#eaf5ff"/>
     </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7be495"/>
+      <stop offset="100%" stop-color="#22b24c"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffc36b"/>
+      <stop offset="100%" stop-color="#f2860f"/>
+    </linearGradient>
   </defs>
 
   <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#bg)"/>
@@ -16,10 +24,12 @@
   <!-- subtle top sheen for a Fluent-style soft highlight -->
   <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#glyph)" opacity="0.05"/>
 
-  <!-- download glyph: arrow shaft + head descending into a tray -->
+  <!-- two parallel right-pointing arrows: two independent transfer streams -->
   <g>
-    <rect x="472" y="256" width="80" height="330" rx="40" fill="url(#glyph)"/>
-    <path d="M 512 660 L 372 508 L 672 508 Z" fill="url(#glyph)"/>
-    <rect x="316" y="700" width="392" height="72" rx="36" fill="url(#glyph)"/>
+    <rect x="271" y="332" width="330" height="80" rx="40" fill="url(#green)"/>
+    <path d="M 753 372 L 601 222 L 601 522 Z" fill="url(#green)"/>
+
+    <rect x="311" y="612" width="330" height="80" rx="40" fill="url(#orange)"/>
+    <path d="M 793 652 L 641 502 L 641 802 Z" fill="url(#orange)"/>
   </g>
 </svg>
