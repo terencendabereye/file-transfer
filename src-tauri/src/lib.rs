@@ -1,0 +1,35 @@
+pub mod commands;
+pub mod error;
+pub mod events;
+pub mod models;
+pub mod state;
+mod tauri_event_sink;
+mod window;
+
+use std::sync::Arc;
+
+use tauri::Manager;
+
+use state::AppState;
+use tauri_event_sink::TauriEventSink;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::mode::set_mode,
+            commands::mode::get_mode,
+        ])
+        .setup(|app| {
+            let sink = Box::new(TauriEventSink(app.handle().clone()));
+            let app_state = Arc::new(AppState::new(Some(sink)));
+            app.manage(app_state);
+
+            let main_window = app.get_webview_window("main").expect("main window must exist");
+            window::init_main_window(&main_window);
+            Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}

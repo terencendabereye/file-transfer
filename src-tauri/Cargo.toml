@@ -1,0 +1,51 @@
+[package]
+name = "file-transfer"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "file_transfer_lib"
+# cdylib omitted deliberately — same rationale as download-manager/src-tauri/Cargo.toml:
+# avoids duplicate statically-linked C libs causing STATUS_ENTRYPOINT_NOT_FOUND when
+# `cargo test` links dynamically against a second copy of bundled deps.
+crate-type = ["staticlib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["io", "codec"] }
+window-vibrancy = "0.8.0"
+thiserror = "2.0"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+futures-util = "0.3"
+blake3 = "1"
+snow = "0.9"
+mdns-sd = "0.13"
+if-addrs = "0.13"
+rand = "0.9"
+bincode = "2"
+russh = "0.45"
+russh-sftp = "2"
+keyring = "3"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,91 @@
+.fluent-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(0.5px); /* subtle - Mica already provides the real blur */
+}
+
+.fluent-button {
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  transition: background 0.1s ease;
+}
+
+.fluent-button:hover {
+  background: var(--hover-bg);
+}
+
+.fluent-button.primary {
+  background: var(--accent);
+  color: white;
+  border-color: transparent;
+}
+
+.fluent-button.primary:hover {
+  background: var(--accent-hover);
+}
+
+.fluent-input {
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 6px 10px;
+}
+
+.fluent-progress-track {
+  background: var(--track-bg);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.fluent-progress-fill {
+  background: var(--progress-fill);
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: rgba(0, 103, 192, 0.15);
+  color: var(--accent);
+}
+.status-badge.queued,
+.status-badge.paused {
+  background: var(--track-bg);
+  color: var(--text-secondary);
+}
+.status-badge.completed {
+  background: rgba(15, 123, 15, 0.15);
+  color: var(--success);
+}
+.status-badge.error,
+.status-badge.auth-failed,
+.status-badge.host-key-mismatch {
+  background: rgba(196, 43, 28, 0.15);
+  color: var(--danger);
+}
+.status-badge.verifying,
+.status-badge.pairing {
+  background: rgba(96, 205, 255, 0.15);
+  color: var(--accent);
+}
+.status-badge.reconnecting {
+  background: rgba(255, 185, 0, 0.15);
+  color: #b88600;
+}

@@ -1,0 +1,25 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a9bff"/>
+      <stop offset="55%" stop-color="#0067c0"/>
+      <stop offset="100%" stop-color="#00489c"/>
+    </linearGradient>
+    <linearGradient id="glyph" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eaf5ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#bg)"/>
+
+  <!-- subtle top sheen for a Fluent-style soft highlight -->
+  <rect x="0" y="0" width="1024" height="1024" rx="230" fill="url(#glyph)" opacity="0.05"/>
+
+  <!-- download glyph: arrow shaft + head descending into a tray -->
+  <g>
+    <rect x="472" y="256" width="80" height="330" rx="40" fill="url(#glyph)"/>
+    <path d="M 512 660 L 372 508 L 672 508 Z" fill="url(#glyph)"/>
+    <rect x="316" y="700" width="392" height="72" rx="36" fill="url(#glyph)"/>
+  </g>
+</svg>
