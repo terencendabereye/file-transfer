@@ -28,7 +28,7 @@ pub async fn send_file(state: State<'_, Arc<AppState>>, path: String) -> Result<
         .queue
         .lock()
         .unwrap()
-        .push_new(transfer_id, Direction::Send, file_name, size);
+        .push_new(transfer_id, Direction::Send, file_name.clone(), size);
 
     let mut guard = state.outbound.lock().await;
     let Some(framed) = guard.as_mut() else {
@@ -65,6 +65,7 @@ pub async fn send_file(state: State<'_, Arc<AppState>>, path: String) -> Result<
     if let Some(sink) = sink {
         sink.emit_transfer_status_changed(TransferStatusChangedPayload {
             transfer_id: transfer_id.to_string(),
+            file_name,
             status,
         });
     }

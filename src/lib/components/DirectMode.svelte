@@ -7,18 +7,22 @@
     disconnect,
     sendFile,
     pickFile,
+    getDownloadDir,
+    revealDownloadFolder,
   } from "../api/commands";
   import { connectionStatus } from "../stores/connection";
   import { transferProgress, transferLog } from "../stores/transfers";
 
   let linkLocalAddresses = $state<string[]>([]);
   let listening = $state(false);
-  let targetAddress = $state("127.0.0.1");
+  let downloadDir = $state("");
+  let targetAddress = $state("");
   let error = $state<string | null>(null);
   let sending = $state(false);
 
   onMount(async () => {
     linkLocalAddresses = await listLinkLocalAddresses();
+    downloadDir = await getDownloadDir();
   });
 
   async function handleStartListener() {
@@ -59,35 +63,49 @@
   }
 
   const progressList = $derived(Object.values($transferProgress));
+  const isSender = $derived($connectionStatus.connected && $connectionStatus.role === "outbound");
+  const isReceivingPeer = $derived($connectionStatus.connected && $connectionStatus.role === "inbound");
 </script>
 
 <div class="direct-mode">
   <section class="fluent-card">
-    <h3>Listen for incoming transfers</h3>
-    {#if linkLocalAddresses.length > 0}
-      <p class="hint">Link-local addresses detected: {linkLocalAddresses.join(", ")}</p>
-    {:else}
-      <p class="hint">No link-local (Ethernet-only) address detected yet — you can still test over localhost.</p>
-    {/if}
-    <button class="fluent-button primary" onclick={handleStartListener} disabled={listening}>
-      {listening ? "Listening…" : "Start Listening"}
-    </button>
+    <h3>How this works</h3>
+    <p class="hint">
+      Pick <strong>one</strong> role per computer. The computer that will <strong>receive</strong> files clicks
+      "Start Listening" below. The computer that will <strong>send</strong> a file enters the receiving
+      computer's IP address and clicks "Connect", then "Choose File &amp; Send". Both computers must be
+      on the same network (or connected directly by cable) and able to reach each other on port 53217 —
+      a firewall prompt asking to allow the app on first listen must be accepted.
+    </p>
   </section>
 
   <section class="fluent-card">
-    <h3>Connect to a peer</h3>
-    {#if $connectionStatus.connected}
-      <p>Connected to {$connectionStatus.peer_address}</p>
-      <button class="fluent-button" onclick={handleDisconnect}>Disconnect</button>
+    <h3>Receive files on this computer</h3>
+    {#if linkLocalAddresses.length > 0}
+      <p class="hint">This computer's addresses: {linkLocalAddresses.join(", ")}</p>
     {:else}
-      <input class="fluent-input" bind:value={targetAddress} placeholder="IP address" />
-      <button class="fluent-button primary" onclick={handleConnect}>Connect</button>
+      <p class="hint">
+        No link-local (direct-cable) address detected — that's fine over a regular network. Find this
+        computer's IP with <code>ipconfig</code> and give that to the sending computer.
+      </p>
+    {/if}
+    <button class="fluent-button primary" onclick={handleStartListener} disabled={listening}>
+      {listening ? "Listening for incoming files…" : "Start Listening"}
+    </button>
+    {#if isReceivingPeer}
+      <p class="status-ok">Peer connected: {$connectionStatus.peer_address}</p>
+    {/if}
+    {#if downloadDir}
+      <p class="hint">Received files are saved to:<br /><code>{downloadDir}</code></p>
+      <button class="fluent-button" onclick={revealDownloadFolder}>Open Received Files Folder</button>
     {/if}
   </section>
 
-  {#if $connectionStatus.connected}
-    <section class="fluent-card">
-      <h3>Send a file</h3>
+  <section class="fluent-card">
+    <h3>Send a file from this computer</h3>
+    {#if isSender}
+      <p class="status-ok">Connected to {$connectionStatus.peer_address}</p>
+      <button class="fluent-button" onclick={handleDisconnect}>Disconnect</button>
       <button class="fluent-button primary" onclick={handleSendFile} disabled={sending}>
         {sending ? "Sending…" : "Choose File & Send"}
       </button>
@@ -96,8 +114,11 @@
           <div class="fluent-progress-fill" style="width: {(p.bytes_done / Math.max(p.bytes_total, 1)) * 100}%"></div>
         </div>
       {/each}
-    </section>
-  {/if}
+    {:else}
+      <input class="fluent-input" bind:value={targetAddress} placeholder="Receiving computer's IP address" />
+      <button class="fluent-button primary" onclick={handleConnect} disabled={!targetAddress}>Connect</button>
+    {/if}
+  </section>
 
   {#if error}
     <p class="error">{error}</p>
@@ -122,7 +143,7 @@
     gap: var(--spacing-4);
     padding: var(--spacing-5);
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
   }
 
   section {
@@ -130,6 +151,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
+    align-items: flex-start;
   }
 
   h3 {
@@ -143,8 +165,23 @@
     margin: 0;
   }
 
+  .status-ok {
+    color: var(--success);
+    font-size: 13px;
+    margin: 0;
+  }
+
   .error {
     color: var(--danger);
+  }
+
+  code {
+    font-size: 11px;
+    word-break: break-all;
+  }
+
+  .fluent-progress-track {
+    width: 100%;
   }
 
   ul {

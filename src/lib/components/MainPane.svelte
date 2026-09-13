@@ -7,9 +7,13 @@
   {#if $mode === "direct"}
     <DirectMode />
   {:else if $mode === "network"}
-    <div class="placeholder">Searching for peers on the network…</div>
+    <div class="placeholder">
+      Network (Wi-Fi/LAN) mode isn't built yet — no discovery is running, so it can't
+      find anything. Use Direct mode for now: enter the other computer's IP address
+      directly.
+    </div>
   {:else if $mode === "ssh"}
-    <div class="placeholder">Connect to a server to browse files.</div>
+    <div class="placeholder">Server (SSH/SFTP) mode isn't built yet.</div>
   {/if}
 </main>
 
@@ -29,5 +33,8 @@
 
   .placeholder {
     color: var(--text-secondary);
+    max-width: 360px;
+    text-align: center;
+    padding: var(--spacing-4);
   }
 </style>

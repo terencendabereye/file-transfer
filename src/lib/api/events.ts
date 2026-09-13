@@ -10,12 +10,14 @@ export interface TransferProgressPayload {
 
 export interface TransferStatusChangedPayload {
   transfer_id: string;
+  file_name: string;
   status: { status: string; kind?: string; message?: string };
 }
 
 export interface ConnectionStatusPayload {
   connected: boolean;
   peer_address: string | null;
+  role: "inbound" | "outbound";
 }
 
 export async function startEventListeners() {
@@ -24,13 +26,13 @@ export async function startEventListeners() {
   });
 
   await listen<TransferStatusChangedPayload>("transfer:status-changed", (event) => {
-    const { transfer_id, status } = event.payload;
+    const { transfer_id, file_name, status } = event.payload;
     const label =
       status.status === "error"
-        ? `Failed: ${status.message ?? status.kind ?? "unknown error"}`
+        ? `Failed (${file_name}): ${status.message ?? status.kind ?? "unknown error"}`
         : status.status === "done"
-          ? "Completed"
-          : status.status;
+          ? `Completed: ${file_name}`
+          : `${file_name}: ${status.status}`;
     transferLog.update((log) => [{ transferId: transfer_id, label, at: Date.now() }, ...log].slice(0, 20));
   });
 

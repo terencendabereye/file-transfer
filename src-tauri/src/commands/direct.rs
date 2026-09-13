@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
 use tauri::{AppHandle, State};
+use tauri_plugin_opener::OpenerExt;
 use tokio::net::{TcpListener, TcpStream};
 
 use crate::engine::receiver::receive_one;
-use crate::events::ConnectionStatusPayload;
+use crate::error::AppError;
+use crate::events::{ConnectionStatusPayload, TransferStatusChangedPayload};
+use crate::models::{ErrorKind, ItemStatus};
 use crate::net::direct_link::list_link_local_addresses as detect_link_local;
 use crate::net::framing::new_framed;
 use crate::net::transport::Transport;
@@ -14,6 +17,21 @@ use crate::state::AppState;
 #[tauri::command]
 pub fn list_link_local_addresses() -> Vec<String> {
     detect_link_local()
+}
+
+/// Where received files are written. Surfaced in the UI so "nothing happened" isn't
+/// the only feedback a successful-but-invisible receive gives someone.
+#[tauri::command]
+pub fn get_download_dir(state: State<'_, Arc<AppState>>) -> String {
+    state.download_dir.to_string_lossy().into_owned()
+}
+
+#[tauri::command]
+pub fn reveal_download_folder(app: AppHandle, state: State<'_, Arc<AppState>>) -> crate::error::Result<()> {
+    let path = state.download_dir.to_string_lossy().into_owned();
+    app.opener()
+        .open_path(path, None::<&str>)
+        .map_err(|e| AppError::Other(e.to_string()))
 }
 
 /// Starts listening for one incoming Direct-mode connection at a time. Each accepted
@@ -46,6 +64,7 @@ async fn serve_incoming(_app: AppHandle, state: Arc<AppState>, stream: TcpStream
         sink.emit_connection_status(ConnectionStatusPayload {
             connected: true,
             peer_address: Some(peer_addr.clone()),
+            role: "inbound",
         });
     }
 
@@ -65,7 +84,28 @@ async fn serve_incoming(_app: AppHandle, state: Arc<AppState>, stream: TcpStream
         .await;
 
         match result {
-            Ok(Some(_)) => continue,
+            Ok(Some((id, dest_path, success))) => {
+                let file_name = dest_path
+                    .file_name()
+                    .map(|n| n.to_string_lossy().into_owned())
+                    .unwrap_or_default();
+                let status = if success {
+                    ItemStatus::Done
+                } else {
+                    ItemStatus::Error {
+                        kind: ErrorKind::HashMismatch,
+                        message: "received file did not match the sender's hash".to_string(),
+                    }
+                };
+                if let Some(sink) = state.event_sink.as_ref() {
+                    sink.emit_transfer_status_changed(TransferStatusChangedPayload {
+                        transfer_id: id.to_string(),
+                        file_name,
+                        status,
+                    });
+                }
+                continue;
+            }
             Ok(None) | Err(_) => break,
         }
     }
@@ -74,6 +114,7 @@ async fn serve_incoming(_app: AppHandle, state: Arc<AppState>, stream: TcpStream
         sink.emit_connection_status(ConnectionStatusPayload {
             connected: false,
             peer_address: Some(peer_addr),
+            role: "inbound",
         });
     }
 }
@@ -93,6 +134,7 @@ pub async fn connect(app: AppHandle, state: State<'_, Arc<AppState>>, address: S
         sink.emit_connection_status(ConnectionStatusPayload {
             connected: true,
             peer_address: Some(target),
+            role: "outbound",
         });
     }
     let _ = app;
@@ -106,6 +148,7 @@ pub async fn disconnect(state: State<'_, Arc<AppState>>) -> crate::error::Result
         sink.emit_connection_status(ConnectionStatusPayload {
             connected: false,
             peer_address: None,
+            role: "outbound",
         });
     }
     Ok(())

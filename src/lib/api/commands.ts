@@ -5,6 +5,14 @@ export function listLinkLocalAddresses(): Promise<string[]> {
   return invoke("list_link_local_addresses");
 }
 
+export function getDownloadDir(): Promise<string> {
+  return invoke("get_download_dir");
+}
+
+export function revealDownloadFolder(): Promise<void> {
+  return invoke("reveal_download_folder");
+}
+
 export function startListener(): Promise<void> {
   return invoke("start_listener");
 }

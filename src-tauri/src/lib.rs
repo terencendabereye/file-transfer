@@ -24,6 +24,8 @@ pub fn run() {
             commands::mode::set_mode,
             commands::mode::get_mode,
             commands::direct::list_link_local_addresses,
+            commands::direct::get_download_dir,
+            commands::direct::reveal_download_folder,
             commands::direct::start_listener,
             commands::direct::connect,
             commands::direct::disconnect,
